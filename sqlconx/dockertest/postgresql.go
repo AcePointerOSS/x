@@ -20,32 +20,6 @@ const hostname = "localhost" // make this configurable?
 var resources = []*dockertest.Resource{}
 var pool *dockertest.Pool
 
-// TODO: Attribute Apache License and credit to ORY, We keep our own version because their x may change
-// Retry executes a f until no error is returned or failAfter is reached.
-func Retry(maxWait time.Duration, failAfter time.Duration, f func() error) (err error) {
-	var lastStart time.Time
-	err = errors.New("did not connect")
-	loopWait := time.Millisecond * 100
-	retryStart := time.Now().UTC()
-	for retryStart.Add(failAfter).After(time.Now().UTC()) {
-		lastStart = time.Now().UTC()
-		if err = f(); err == nil {
-			return nil
-		}
-
-		if lastStart.Add(maxWait * 2).Before(time.Now().UTC()) {
-			retryStart = time.Now().UTC()
-		}
-
-		log.Errorf("Retrying in %f seconds...\n", loopWait.Seconds())
-		time.Sleep(loopWait)
-		loopWait = loopWait * time.Duration(int64(2))
-		if loopWait > maxWait {
-			loopWait = maxWait
-		}
-	}
-	return err
-}
 
 func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgDbName string) dockertest.RunOptions {
 	opts := dockertest.RunOptions{
