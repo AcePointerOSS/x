@@ -64,7 +64,7 @@ func Retry(maxWait time.Duration, failAfter time.Duration, f func() error) (err 
 
 func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgDbName string) dockertest.RunOptions {
 	opts := dockertest.RunOptions{
-		Repository: "postgresql",
+		Repository: "postgres",
 		Tag:        "12.5-alpine",
 		Env: []string{
 			"POSTGRES_USER=" + pgUsername,
