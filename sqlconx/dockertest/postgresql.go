@@ -42,7 +42,7 @@ func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgD
 	}
 	return opts
 }
-o
+
 // runs postgresql based on the variables passed into it.
 func RunTestPostgreSQL(t *testing.T, containerName, containerExposedPort, pgUsername, pgPassword, pgDbName string) {
 	opts := getRunOpts(containerExposedPort,containerName,pgUsername,pgPassword,pgDbName)
