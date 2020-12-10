@@ -5,6 +5,7 @@ package dockertest
 import (
 	"errors"
 	"time"
+	log "github.com/sirupsen/logrus"
 	"github.com/ory/dockertest/v3"
 )
 

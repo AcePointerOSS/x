@@ -2,7 +2,6 @@ package dockertest
 // as the package suggests, this is not meant for use in an actual scenario.
 // it is meant to set up a postgresql instance using dockertest.
 import (
-	"errors"
 	"fmt"
 	_ "github.com/gobuffalo/pop/v5"
 	"github.com/ory/dockertest/v3"
@@ -12,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
+	"github.com/pkg/errors"
 )
 
 const hostname = "localhost" // make this configurable?
@@ -31,7 +31,7 @@ func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgD
 		},
 		ExposedPorts: []string{"5432"},
 		Name:         containerName,
-		PortBindings: map[docker.Port][]docker.PortBinding{
+		PortBindings: map[dc.Port][]dc.PortBinding{
 			"5432": {
 				{
 					HostIP:   "0.0.0.0",
@@ -46,9 +46,9 @@ func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgD
 // runs postgresql based on the variables passed into it.
 func RunTestPostgreSQL(t *testing.T, containerName, containerExposedPort, pgUsername, pgPassword, pgDbName string) {
 	opts := getRunOpts(containerExposedPort,containerName,pgUsername,pgPassword,pgDbName)
-	_, err := initalizePostgresDb(opts)
+	resource, err := initalizePostgresDb(opts)
 	require.NoError(t,err)
-	bootstrap(t,containerExposedPort,pgUsername,pgPassword, pgDbName)
+	bootstrap(t,containerExposedPort,pgUsername,pgPassword, pgDbName, resource)
 }
 
 func initalizePostgresDb(opts dockertest.RunOptions)(*dockertest.Resource, error){
@@ -56,7 +56,7 @@ func initalizePostgresDb(opts dockertest.RunOptions)(*dockertest.Resource, error
 	if err != nil {
 		return nil, errors.Wrap(err, "Could not connect to docker")
 	}
-	resource, err := pool.RunWithOptions(opts)
+	resource, err := pool.RunWithOptions(&opts)
 
 	if err == nil {
 		resources = append(resources, resource)
@@ -65,7 +65,7 @@ func initalizePostgresDb(opts dockertest.RunOptions)(*dockertest.Resource, error
 }
 
 
-func bootstrap(t *testing.T,containerExposedPort, pgUsername, pgPassword, pgDbName string) (db *sqlx.DB){
+func bootstrap(t *testing.T,containerExposedPort, pgUsername, pgPassword, pgDbName string, resource *dockertest.Resource) (db *sqlx.DB){
 	// uses sqlx to test for an alive connection,
 	if err := Retry(time.Second*5, time.Minute*5, func() error {
 		databaseConnStr := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
