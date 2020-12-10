@@ -17,6 +17,9 @@ import (
 
 const hostname = "localhost" // make this configurable?
 
+var resources = []*dockertest.Resource{}
+var pool *dockertest.Pool
+
 // TODO: Attribute Apache License and credit to ORY, We keep our own version because their x may change
 // Retry executes a f until no error is returned or failAfter is reached.
 func Retry(maxWait time.Duration, failAfter time.Duration, f func() error) (err error) {
@@ -66,7 +69,7 @@ func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgD
 	}
 	return opts
 }
-
+o
 // runs postgresql based on the variables passed into it.
 func RunTestPostgreSQL(t *testing.T, containerName, containerExposedPort, pgUsername, pgPassword, pgDbName string) {
 	opts := getRunOpts(containerExposedPort,containerName,pgUsername,pgPassword,pgDbName)
@@ -80,9 +83,11 @@ func initalizePostgresDb(opts dockertest.RunOptions)(*dockertest.Resource, error
 	if err != nil {
 		return nil, errors.Wrap(err, "Could not connect to docker")
 	}
-
-
 	resource, err := pool.RunWithOptions(opts)
+
+	if err == nil {
+		resources = append(resources, resource)
+	}
 	return resource, err
 }
 
