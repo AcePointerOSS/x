@@ -10,7 +10,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/require"
-	"log"
 	"testing"
 	"time"
 )
