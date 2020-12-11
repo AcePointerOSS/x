@@ -68,7 +68,7 @@ func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword,pgDa
 		Env: []string{
 			"POSTGRES_USER=" + pgUsername,
 			"POSTGRES_PASSWORD=" + pgPassword,
-			"POSTGRES_DB=" + pgDatabase
+			"POSTGRES_DB=" + pgDatabase,
 		},
 		ExposedPorts: []string{"5432"},
 		Name:         containerName,
@@ -85,9 +85,9 @@ func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword,pgDa
 }
 
 // runs postgresql based on the variables passed into it.
-func RunTestPostgreSQL(t *testing.T, containerName, containerExposedPort, pgUsername, pgPassword  string) {
+func RunTestPostgreSQL(t *testing.T, containerName, containerExposedPort, pgUsername, pgPassword , pgDatabase string) {
 	opts := getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgDatabase)
-	_, err := initalizePostgresDb(t, opts, pgUsername,pgPassword,pgDatabasem containerExposedPort)
+	_, err := initalizePostgresDb(t, opts, pgUsername,pgPassword,pgDatabase, containerExposedPort)
 	require.NoError(t, err)
 }
 
