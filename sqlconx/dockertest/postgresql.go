@@ -89,7 +89,6 @@ func RunTestPostgreSQL(t *testing.T, containerName, containerExposedPort, pgUser
 	opts := getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword)
 	resource, err := initalizePostgresDb(t, opts)
 	require.NoError(t, err)
-	bootstrap(t, containerExposedPort, pgUsername, pgPassword, resource)
 }
 
 func initalizePostgresDb(t* testing.T, opts dockertest.RunOptions) (*dockertest.Resource, error) {
@@ -118,7 +117,9 @@ func bootstrap(t *testing.T, containerExposedPort, pgUsername, pgPassword string
 		var err error
 		t.Log(databaseConnStr)
 		db, err := sqlx.Connect("postgres", databaseConnStr)
-		require.NoError(t, err)
+		if err != nil {
+			return err
+		}
 
 		return db.Ping()
 	}); err != nil {
