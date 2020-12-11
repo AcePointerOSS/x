@@ -109,7 +109,7 @@ func bootstrap(t *testing.T, containerExposedPort, pgUsername, pgPassword, pgDbN
 	// uses sqlx to test for an alive connection,
 	if err := Retry(time.Second*5, time.Minute*5, func() error {
 		databaseConnStr := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
-			hostname,
+			"localhost",
 			containerExposedPort,
 			pgUsername,
 			pgDbName,
