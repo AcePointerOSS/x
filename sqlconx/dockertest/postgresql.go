@@ -61,14 +61,14 @@ func Retry(maxWait time.Duration, failAfter time.Duration, f func() error) (err 
 	return err
 }
 
-func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgDbName string) dockertest.RunOptions {
+func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword string) dockertest.RunOptions {
 	opts := dockertest.RunOptions{
 		Repository: "postgres",
 		Tag:        "12.5-alpine",
 		Env: []string{
 			"POSTGRES_USER=" + pgUsername,
 			"POSTGRES_PASSWORD=" + pgPassword,
-			"POSTGRES_DB=" + pgDbName,
+
 		},
 		ExposedPorts: []string{"5432"},
 		Name:         containerName,
@@ -85,11 +85,11 @@ func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgD
 }
 
 // runs postgresql based on the variables passed into it.
-func RunTestPostgreSQL(t *testing.T, containerName, containerExposedPort, pgUsername, pgPassword, pgDbName string) {
-	opts := getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgDbName)
+func RunTestPostgreSQL(t *testing.T, containerName, containerExposedPort, pgUsername, pgPassword  string) {
+	opts := getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword)
 	resource, err := initalizePostgresDb(t, opts)
 	require.NoError(t, err)
-	bootstrap(t, containerExposedPort, pgUsername, pgPassword, pgDbName, resource)
+	bootstrap(t, containerExposedPort, pgUsername, pgPassword, resource)
 }
 
 func initalizePostgresDb(t* testing.T, opts dockertest.RunOptions) (*dockertest.Resource, error) {
@@ -107,14 +107,13 @@ func initalizePostgresDb(t* testing.T, opts dockertest.RunOptions) (*dockertest.
 	return resource, err
 }
 
-func bootstrap(t *testing.T, containerExposedPort, pgUsername, pgPassword, pgDbName string, resource *dockertest.Resource) (db *sqlx.DB) {
+func bootstrap(t *testing.T, containerExposedPort, pgUsername, pgPassword string, resource *dockertest.Resource) (db *sqlx.DB) {
 	// uses sqlx to test for an alive connection,
 	if err := Retry(time.Second*5, time.Minute*5, func() error {
-		databaseConnStr := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
-			"localhost",
-			containerExposedPort,
+		databaseConnStr := fmt.Sprintf("postgres://%s:%s@127.0.0.1:%s/postgres?sslmode=disable",
+
 			pgUsername,
-			pgDbName,
+			containerExposedPort,
 			pgPassword)
 		var err error
 		t.Log(databaseConnStr)
@@ -124,7 +123,7 @@ func bootstrap(t *testing.T, containerExposedPort, pgUsername, pgPassword, pgDbN
 		return db.Ping()
 	}); err != nil {
 		if pErr := pool.Purge(resource); pErr != nil {
-			t.Log("Could not connect to docker and unable to remove image: %s - %s", err, pErr)
+			t.Logf("Could not connect to docker and unable to remove image: %s - %s\n", err, pErr)
 			require.NoError(t, pErr)
 		}
 		log.Fatalf("Could not connect to docker: %s", err)
