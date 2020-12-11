@@ -122,13 +122,14 @@ func bootstrap(t *testing.T, containerExposedPort, pgUsername, pgPassword string
 
 		return db.Ping()
 	}); err != nil {
-		if pErr := pool.Purge(resource); pErr != nil {
+
+		/*if pErr := pool.Purge(resource); pErr != nil {
 			t.Logf("Could not connect to docker and unable to remove image: %s - %s\n", err, pErr)
 			require.NoError(t, pErr)
 		}
 		log.Fatalf("Could not connect to docker: %s", err)
 		require.NoError(t, err)
-		log.Info ("Removed image due to an error")
+		log.Info ("Removed image due to an error")*/
 	}
 	return
 }
