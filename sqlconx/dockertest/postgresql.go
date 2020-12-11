@@ -103,6 +103,7 @@ func initalizePostgresDb(t* testing.T, opts dockertest.RunOptions) (*dockertest.
 	if err == nil {
 		resources = append(resources, resource)
 	}
+	t.Log("Created database")
 	return resource, err
 }
 
