@@ -87,18 +87,19 @@ func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgD
 // runs postgresql based on the variables passed into it.
 func RunTestPostgreSQL(t *testing.T, containerName, containerExposedPort, pgUsername, pgPassword, pgDbName string) {
 	opts := getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgDbName)
-	resource, err := initalizePostgresDb(opts)
+	resource, err := initalizePostgresDb(t, opts)
 	require.NoError(t, err)
 	bootstrap(t, containerExposedPort, pgUsername, pgPassword, pgDbName, resource)
 }
 
-func initalizePostgresDb(opts dockertest.RunOptions) (*dockertest.Resource, error) {
+func initalizePostgresDb(t* testing.T, opts dockertest.RunOptions) (*dockertest.Resource, error) {
 	pool, err := dockertest.NewPool("")
+	require.NoError(t, err)
 	if err != nil {
 		return nil, errors.Wrap(err, "Could not connect to docker")
 	}
 	resource, err := pool.RunWithOptions(&opts)
-
+	require.NoError(t, err)
 	if err == nil {
 		resources = append(resources, resource)
 	}
