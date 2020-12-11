@@ -117,13 +117,13 @@ func bootstrap(t *testing.T, containerExposedPort, pgUsername, pgPassword, pgDbN
 			pgDbName,
 			pgPassword)
 		var err error
-		db, err = sqlx.Connect("postgres", databaseConnStr)
+		db, err := sqlx.Connect("postgres", databaseConnStr)
 		require.NoError(t, err)
 
 		return db.Ping()
 	}); err != nil {
 		if pErr := pool.Purge(resource); pErr != nil {
-			log.Fatalf("Could not connect to docker and unable to remove image: %s - %s", err, pErr)
+			t.Log("Could not connect to docker and unable to remove image: %s - %s", err, pErr)
 			require.NoError(t, pErr)
 		}
 		log.Fatalf("Could not connect to docker: %s", err)
