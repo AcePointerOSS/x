@@ -61,14 +61,14 @@ func Retry(maxWait time.Duration, failAfter time.Duration, f func() error) (err 
 	return err
 }
 
-func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword string) dockertest.RunOptions {
+func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword,pgDatabase string) dockertest.RunOptions {
 	opts := dockertest.RunOptions{
 		Repository: "postgres",
 		Tag:        "12.5-alpine",
 		Env: []string{
 			"POSTGRES_USER=" + pgUsername,
 			"POSTGRES_PASSWORD=" + pgPassword,
-
+			"POSTGRES_DB=" + pgDatabase
 		},
 		ExposedPorts: []string{"5432"},
 		Name:         containerName,
@@ -86,12 +86,12 @@ func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword stri
 
 // runs postgresql based on the variables passed into it.
 func RunTestPostgreSQL(t *testing.T, containerName, containerExposedPort, pgUsername, pgPassword  string) {
-	opts := getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword)
-	_, err := initalizePostgresDb(t, opts, pgUsername,pgPassword, containerExposedPort)
+	opts := getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgDatabase)
+	_, err := initalizePostgresDb(t, opts, pgUsername,pgPassword,pgDatabasem containerExposedPort)
 	require.NoError(t, err)
 }
 
-func initalizePostgresDb(t* testing.T, opts dockertest.RunOptions, pgUsername, pgPassword, containerExposedPort string) (*dockertest.Resource, error) {
+func initalizePostgresDb(t* testing.T, opts dockertest.RunOptions, pgUsername, pgPassword, pgDatabase, containerExposedPort string) (*dockertest.Resource, error) {
 	pool, err := dockertest.NewPool("")
 	require.NoError(t, err)
 	if err != nil {
@@ -104,13 +104,13 @@ func initalizePostgresDb(t* testing.T, opts dockertest.RunOptions, pgUsername, p
 	}
 	// exponential backoff-retry, because the application in the container might not be ready to accept connections yet
 	if err := pool.Retry(func() error {
-		databaseConnStr := fmt.Sprintf("postgres://%s:%s@127.0.0.1:%s/postgres?sslmode=disable",
+		databaseConnStr := fmt.Sprintf("postgres://%s:%s@127.0.0.1:%s/%s?sslmode=disable",
 			pgUsername,
 			pgPassword,
+			pgDatabase,
 			containerExposedPort,
 		)
 		var err error
-		t.Log(databaseConnStr)
 		db, err := sqlx.Connect("postgres", databaseConnStr)
 		if err != nil {
 			return err
