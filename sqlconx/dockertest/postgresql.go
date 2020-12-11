@@ -126,6 +126,7 @@ func bootstrap(t *testing.T, containerExposedPort, pgUsername, pgPassword, pgDbN
 		}
 		log.Fatalf("Could not connect to docker: %s", err)
 		require.NoError(t, err)
+		log.Info ("Removed image due to an error")
 	}
 	return
 }
