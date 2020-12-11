@@ -109,7 +109,7 @@ func initalizePostgresDb(t* testing.T, opts dockertest.RunOptions) (*dockertest.
 
 func bootstrap(t *testing.T, containerExposedPort, pgUsername, pgPassword string, resource *dockertest.Resource) (db *sqlx.DB) {
 	// uses sqlx to test for an alive connection,
-	if err := Retry(time.Second*5, time.Minute*5, func() error {
+	if err := pool.Retry( func() error {
 		databaseConnStr := fmt.Sprintf("postgres://%s:%s@127.0.0.1:%s/postgres?sslmode=disable",
 			pgUsername,
 			pgPassword,
@@ -123,13 +123,13 @@ func bootstrap(t *testing.T, containerExposedPort, pgUsername, pgPassword string
 		return db.Ping()
 	}); err != nil {
 
-		/*if pErr := pool.Purge(resource); pErr != nil {
+		if pErr := pool.Purge(resource); pErr != nil {
 			t.Logf("Could not connect to docker and unable to remove image: %s - %s\n", err, pErr)
 			require.NoError(t, pErr)
 		}
 		log.Fatalf("Could not connect to docker: %s", err)
 		require.NoError(t, err)
-		log.Info ("Removed image due to an error")*/
+		log.Info ("Removed image due to an error")
 	}
 	return
 }
