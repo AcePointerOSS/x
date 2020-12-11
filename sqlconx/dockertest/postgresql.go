@@ -107,8 +107,8 @@ func initalizePostgresDb(t* testing.T, opts dockertest.RunOptions, pgUsername, p
 		databaseConnStr := fmt.Sprintf("postgres://%s:%s@127.0.0.1:%s/%s?sslmode=disable",
 			pgUsername,
 			pgPassword,
-			pgDatabase,
 			containerExposedPort,
+			pgDatabase,
 		)
 		var err error
 		db, err := sqlx.Connect("postgres", databaseConnStr)
