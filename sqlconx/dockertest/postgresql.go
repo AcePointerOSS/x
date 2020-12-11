@@ -119,7 +119,6 @@ func bootstrap(t *testing.T, containerExposedPort, pgUsername, pgPassword, pgDbN
 		var err error
 		t.Log(databaseConnStr)
 		db, err := sqlx.Connect("postgres", databaseConnStr)
-		db.SetMaxIdleConns(0)
 		require.NoError(t, err)
 
 		return db.Ping()
