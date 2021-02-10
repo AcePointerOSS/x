@@ -6,7 +6,7 @@ import (
 )
 
 func GetReqId(c *gin.Context) string {
-	return c.GetHeader("request-id")
+	return c.Request.Header.Get("request-id")
 }
 
 func UseRequestId() gin.HandlerFunc {
@@ -16,7 +16,6 @@ func UseRequestId() gin.HandlerFunc {
 		if reqId == "" {
 			reqId = uuid.Must(uuid.NewV4()).String()
 		}
-		c.Header("request-id", reqId)
-		c.Next()
+		c.Request.Header.Set("request-id", reqId)
 	}
 }
