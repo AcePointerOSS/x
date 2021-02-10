@@ -61,7 +61,7 @@ func Retry(maxWait time.Duration, failAfter time.Duration, f func() error) (err 
 	return err
 }
 
-func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword,pgDatabase string) dockertest.RunOptions {
+func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgDatabase string) dockertest.RunOptions {
 	opts := dockertest.RunOptions{
 		Repository: "postgres",
 		Tag:        "12.5-alpine",
@@ -85,13 +85,13 @@ func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword,pgDa
 }
 
 // runs postgresql based on the variables passed into it.
-func RunTestPostgreSQL(t *testing.T, containerName, containerExposedPort, pgUsername, pgPassword , pgDatabase string) {
+func RunTestPostgreSQL(t *testing.T, containerName, containerExposedPort, pgUsername, pgPassword, pgDatabase string) {
 	opts := getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgDatabase)
-	_, err := initalizePostgresDb(t, opts, pgUsername,pgPassword,pgDatabase, containerExposedPort)
+	_, err := initalizePostgresDb(t, opts, pgUsername, pgPassword, pgDatabase, containerExposedPort)
 	require.NoError(t, err)
 }
 
-func initalizePostgresDb(t* testing.T, opts dockertest.RunOptions, pgUsername, pgPassword, pgDatabase, containerExposedPort string) (*dockertest.Resource, error) {
+func initalizePostgresDb(t *testing.T, opts dockertest.RunOptions, pgUsername, pgPassword, pgDatabase, containerExposedPort string) (*dockertest.Resource, error) {
 	pool, err := dockertest.NewPool("")
 	require.NoError(t, err)
 	if err != nil {
