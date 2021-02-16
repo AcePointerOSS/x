@@ -2,10 +2,11 @@ package loggerx
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"fmt"
 )
+
 type responseBodyWriter struct {
 	gin.ResponseWriter
 	body *bytes.Buffer
@@ -25,7 +26,7 @@ func GetLoggerWithCtx(c *gin.Context) *logrus.Entry {
 }
 
 // used for debugging,
-func GetLoggerWithCtxAddBody(c *gin.Context, body string) *logrus.Entry{
+func GetLoggerWithCtxAddBody(c *gin.Context, body string) *logrus.Entry {
 	log, exist := c.Get("logger")
 	if !exist {
 		logrus.Fatal("Logger retrival error!")
@@ -45,8 +46,8 @@ func UseLogger() gin.HandlerFunc {
 		} else {
 			log := logrus.WithFields(
 				logrus.Fields{
-					"request-id":req,
-					"route": c.FullPath(),
+					"request-id": req,
+					"route":      c.FullPath(),
 				},
 			)
 			c.Set("logger", log)
