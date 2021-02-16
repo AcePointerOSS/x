@@ -13,11 +13,11 @@ var uuid4 string = "306ca21a-e7da-41ca-8e00-350d6a549ab6"
 type UuidWrapperMock struct{}
 
 func (uwm *UuidWrapperMock) NewUuid() uuid.UUID {
-	return  uuid.Must(uuid.FromString(uuid4))
+	return uuid.Must(uuid.FromString(uuid4))
 }
 
 func (uwm *UuidWrapperMock) NewUuidString() string {
-	return  uuid4
+	return uuid4
 }
 
 func TestUuidWrapper_NewUuid(t *testing.T) {
@@ -33,7 +33,7 @@ func TestUuidWrapper_NewUuidString(t *testing.T) {
 }
 
 // demonstrates how to mock the interface via overriding during tests,
-func TestUuidWrapper_Mock (t *testing.T){
+func TestUuidWrapper_Mock(t *testing.T) {
 	UuidUtil = &UuidWrapperMock{}
 	require.Equal(t, uuid4, UuidUtil.NewUuid().String())
 	require.Equal(t, uuid4, UuidUtil.NewUuidString())
