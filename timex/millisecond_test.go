@@ -9,10 +9,17 @@ import (
 // fixture
 var ms int64 = 1613453369077
 
+const LAYOUT = "2006-01-02 15:04:05"
+
 type MockTimerMilisecond struct{}
 
 func (mtm *MockTimerMilisecond) Millisecond() int64 {
 	return 1613453369077
+}
+
+func (mtm *MockTimerMilisecond) UtcNow() time.Time {
+	t, _ := time.Parse(LAYOUT, "2009-11-10 23:00:00")
+	return t
 }
 
 func TestTimer_Millisecond(t *testing.T) {
