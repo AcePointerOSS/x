@@ -61,10 +61,10 @@ func Retry(maxWait time.Duration, failAfter time.Duration, f func() error) (err 
 	return err
 }
 
-func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgDatabase string) dockertest.RunOptions {
+func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgDatabase, pgDockerTag string) dockertest.RunOptions {
 	opts := dockertest.RunOptions{
 		Repository: "postgres",
-		Tag:        "12.5-alpine",
+		Tag:        pgDockerTag,
 		Env: []string{
 			"POSTGRES_USER=" + pgUsername,
 			"POSTGRES_PASSWORD=" + pgPassword,
@@ -85,13 +85,13 @@ func getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgD
 }
 
 // runs postgresql based on the variables passed into it.
-func RunTestPostgreSQL(t *testing.T, containerName, containerExposedPort, pgUsername, pgPassword, pgDatabase string) {
-	opts := getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgDatabase)
-	_, err := initalizePostgresDb(t, opts, pgUsername, pgPassword, pgDatabase, containerExposedPort)
+func RunTestPostgreSQL(t *testing.T, containerHost, containerName, containerExposedPort, pgUsername, pgPassword, pgDatabase, pgDockerTag string) {
+	opts := getRunOpts(containerExposedPort, containerName, pgUsername, pgPassword, pgDatabase, pgDockerTag)
+	_, err := initalizePostgresDb(t, opts, containerHost, pgUsername, pgPassword, pgDatabase, containerExposedPort)
 	require.NoError(t, err)
 }
 
-func initalizePostgresDb(t *testing.T, opts dockertest.RunOptions, pgUsername, pgPassword, pgDatabase, containerExposedPort string) (*dockertest.Resource, error) {
+func initalizePostgresDb(t *testing.T, opts dockertest.RunOptions, containerHost, pgUsername, pgPassword, pgDatabase, containerExposedPort string) (*dockertest.Resource, error) {
 	pool, err := dockertest.NewPool("")
 	require.NoError(t, err)
 	if err != nil {
@@ -104,9 +104,10 @@ func initalizePostgresDb(t *testing.T, opts dockertest.RunOptions, pgUsername, p
 	}
 	// exponential backoff-retry, because the application in the container might not be ready to accept connections yet
 	if err := pool.Retry(func() error {
-		databaseConnStr := fmt.Sprintf("postgres://%s:%s@127.0.0.1:%s/%s?sslmode=disable",
+		databaseConnStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 			pgUsername,
 			pgPassword,
+			containerHost,
 			containerExposedPort,
 			pgDatabase,
 		)
